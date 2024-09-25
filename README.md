@@ -5,18 +5,7 @@
 [Kerui Ren*](https://github.com/tongji-rkr), [Lihan Jiang*](https://jianglh-whu.github.io/), [Tao Lu](https://github.com/inspirelt), [Mulin Yu](https://scholar.google.com/citations?user=w0Od3hQAAAAJ), [Linning Xu](https://eveneveno.github.io/lnxu), [Zhangkai Ni](https://eezkni.github.io/), [Bo Dai](https://daibo.info/) ✉️ <br />
 
 ## News
-**[2024.08.18]** 🎈We propose **Octree-AnyGS**, a general framework that supports Scaffold-GS, 3D-GS, 2D-GS and the corresponding LOD versions. This framework has the potential to be adapted to other Gaussian-based methods, and SIBR viewers will be recently updated.
-
-**[2024.05.30]** 👀We update new mode (`depth`, `normal`, `Gaussian distribution` and `LOD Bias`) in the [viewer](https://github.com/city-super/Octree-GS/tree/main/SIBR_viewers) for Octree-GS.
-
-**[2024.05.30]** 🎈We release the checkpoints for the Mip-NeRF 360, Tanks&Temples, Deep Blending and MatrixCity Dataset.
-
-**[2024.04.08]** 🎈We update the latest quantitative results on three datasets.
-
-**[2024.04.01]** 🎈👀 The [viewer](https://github.com/city-super/Octree-GS/tree/main/SIBR_viewers) for Octree-GS is available now. 
-
-**[2024.04.01]** We release the code.
-
+**[2024.09.25]** 🎈We propose **Octree-AnyGS**, a general anchor-based framework that supports explicit Gaussians (2D-GS, 3D-GS) and neural Gaussians (Scaffold-GS). Additionally, **Octree-GS** has been adapted to the aforementioned Gaussian primitives, enabling Level-of-Detail representation for large-scale scenes. This framework holds potential for application to other Gaussian-based methods, with relevant SIBR visualizations forthcoming.
 
 ## Overview
 
