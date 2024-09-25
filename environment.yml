@@ -1,4 +1,4 @@
-name: octree_anygs
+name: octree_gs
 channels:
   - pytorch
   - pyg
