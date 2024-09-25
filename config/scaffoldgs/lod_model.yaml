@@ -21,7 +21,7 @@ model_params: {
         }
     },
     base_model: "scaffoldgs",
-    source_path: "/nas/shared/pjlab_lingjun_landmarks/yumulin_group/nerf_data/mipnerf360/bicycle",
+    source_path: "data/mipnerf360/bicycle",
     dataset_name: "mipnerf360",
     scene_name: "bicycle", 
     images: "images",
