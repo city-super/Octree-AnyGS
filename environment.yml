@@ -1,0 +1,27 @@
+name: octree_anygs
+channels:
+  - pytorch
+  - pyg
+  - conda-forge
+  - defaults
+dependencies:
+  - cudatoolkit=11.8
+  - python=3.8.19
+  - pip=24.2
+  - pytorch=2.1.2
+  - torchaudio=2.1.2
+  - torchvision=0.16.2
+  - pytorch-scatter
+  - pip:
+    - plyfile
+    - tensorboard
+    - tqdm
+    - einops
+    - wandb
+    - lpips
+    - laspy
+    - jaxtyping
+    - colorama
+    - opencv-python
+    - git+https://github.com/tongji-rkr/gsplat-2dgs.git
+    - submodules/simple-knn

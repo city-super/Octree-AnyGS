@@ -1,0 +1,104 @@
+# Model Parameters
+model_params: {
+    model_config: {
+        name: "GaussianModel",
+        kwargs: {
+            feat_dim: 32, 
+            view_dim: 3,
+            padding: 0.0,
+            appearance_dim: 0,
+            n_offsets: 10, 
+            voxel_size: 0.001,
+            update_depth: 3, 
+            update_init_factor: 16,
+            update_hierachy_factor: 4,
+            use_feat_bank: False,
+        }
+    },
+    base_model: "scaffoldgs",
+    source_path: "/nas/shared/pjlab-lingjun-landmarks/renkerui/data/mipnerf360/bicycle",
+    dataset_name: "mipnerf360",
+    scene_name: "bicycle", 
+    images: "images",
+    resolution: -1,
+    white_background: False,
+    random_background: False,
+    resolution_scales: [1.0],
+    data_device: "cuda",
+    eval: True,
+    ratio: 1,
+    render_mode: "RGB",
+}
+
+# Pipeline Parameters
+pipeline_params: {
+    compute_cov3D_python:  False,
+    debug:  False
+}
+
+# Optimization Parameters
+optim_params: {
+    iterations: 40_000,
+    position_lr_init: 0.0,
+    position_lr_final: 0.0,
+    position_lr_delay_mult: 0.01,
+    position_lr_max_steps: 40_000,
+    
+    offset_lr_init: 0.01,
+    offset_lr_final: 0.0001,
+    offset_lr_delay_mult: 0.01,
+    offset_lr_max_steps: 40_000,
+
+    feature_lr: 0.0075,
+    scaling_lr: 0.007,
+    rotation_lr: 0.002,
+    
+    mlp_opacity_lr_init: 0.002,
+    mlp_opacity_lr_final: 0.00002,  
+    mlp_opacity_lr_delay_mult: 0.01,
+    mlp_opacity_lr_max_steps: 40_000,
+
+    mlp_cov_lr_init: 0.004,
+    mlp_cov_lr_final: 0.004,
+    mlp_cov_lr_delay_mult: 0.01,
+    mlp_cov_lr_max_steps: 40_000,
+    
+    mlp_color_lr_init: 0.008,
+    mlp_color_lr_final: 0.00005,
+    mlp_color_lr_delay_mult: 0.01,
+    mlp_color_lr_max_steps: 40_000,
+
+    mlp_color_lr_init: 0.008,
+    mlp_color_lr_final: 0.00005,
+    mlp_color_lr_delay_mult: 0.01,
+    mlp_color_lr_max_steps: 40_000,
+    
+    mlp_featurebank_lr_init: 0.01,
+    mlp_featurebank_lr_final: 0.00001,
+    mlp_featurebank_lr_delay_mult: 0.01,
+    mlp_featurebank_lr_max_steps: 40_000,
+
+    appearance_lr_init: 0.05,
+    appearance_lr_final: 0.0005,
+    appearance_lr_delay_mult: 0.01,
+    appearance_lr_max_steps: 40_000,
+
+    lambda_dssim: 0.2,
+    lambda_dreg: 0.01,
+
+    lambda_normal: 0.00,
+    normal_start_iter: 7_000,
+    lambda_dist: 0.00,
+    dist_start_iter: 3_000,
+    
+    start_stat: 500,
+    update_from: 1500,
+    update_interval: 100,
+    update_until: 20000,
+    overlap: False,
+    densification: True,
+
+    min_opacity: 0.005,
+    success_threshold: 0.8,
+    densify_grad_threshold: 0.0002,
+}
