@@ -1,0 +1,1 @@
+from gaussian_renderer.render import render, render_2dgs
