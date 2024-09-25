@@ -1,2 +1,1 @@
-from gaussian_renderer.render_3dgs import render
-from gaussian_renderer.render_2dgs import render_2dgs
+from gaussian_renderer.render import render, render_2dgs

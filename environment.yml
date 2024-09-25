@@ -23,5 +23,5 @@ dependencies:
     - jaxtyping
     - colorama
     - opencv-python
+    - sklearn
     - git+https://github.com/tongji-rkr/gsplat-2dgs.git
-    - submodules/simple-knn

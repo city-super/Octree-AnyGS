@@ -15,6 +15,7 @@ from datetime import datetime
 import numpy as np
 import random
 from types import SimpleNamespace
+from sklearn.neighbors import NearestNeighbors
 
 def inverse_sigmoid(x):
     return torch.log(x/(1-x))
@@ -150,3 +151,9 @@ def parse_cfg(cfg):
     op = SimpleNamespace(**cfg.get('optim_params', {}))
     pp = SimpleNamespace(**cfg.get('pipeline_params', {}))
     return lp, op, pp
+
+def knn(x, K):
+    x_np = x.cpu().numpy()
+    model = NearestNeighbors(n_neighbors=K, metric="euclidean").fit(x_np)
+    distances, _ = model.kneighbors(x_np)
+    return torch.from_numpy(distances).to(x)

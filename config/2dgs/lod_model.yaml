@@ -18,7 +18,7 @@ model_params: {
         }
     },
     base_model: "2dgs",
-    source_path: "/nas/shared/pjlab-lingjun-landmarks/renkerui/data/mipnerf360/bicycle",
+    source_path: "/nas/shared/pjlab_lingjun_landmarks/yumulin_group/nerf_data/mipnerf360/bicycle",
     dataset_name: "mipnerf360",
     scene_name: "bicycle", 
     images: "images",
@@ -63,7 +63,7 @@ optim_params: {
 
     lambda_normal: 0.05,
     normal_start_iter: 7_000,
-    lambda_dist: 0.01,
+    lambda_dist: 0.0,
     dist_start_iter: 3_000,
     
     start_stat: 500,

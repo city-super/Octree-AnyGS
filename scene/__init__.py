@@ -30,22 +30,13 @@ class Scene:
         self.loaded_iter = None
         self.gaussians = gaussians
         self.resolution_scales = resolution_scales
-        if args.render_mode == "RGB":
-            bg_len = 3
-        elif args.render_mode == "RGB+ED" or args.render_mode == "RGB+D":
-            bg_len = 4
-        else:
-            raise ValueError("Unknown render mode")
 
         if args.random_background:
-            logger.info("Using random background")
-            self.background = torch.rand(bg_len, dtype=torch.float32, device="cuda")
+            self.background = torch.rand(3, dtype=torch.float32, device="cuda")
         elif args.white_background:
-            logger.info("Using white background")
-            self.background = torch.ones(bg_len, dtype=torch.float32, device="cuda")
+            self.background = torch.ones(3, dtype=torch.float32, device="cuda")
         else:
-            logger.info("Using black background")
-            self.background = torch.zeros(bg_len, dtype=torch.float32, device="cuda")
+            self.background = torch.zeros(3, dtype=torch.float32, device="cuda")
 
         if load_iteration:
             if load_iteration == -1:

@@ -18,10 +18,9 @@ from torch import nn
 from einops import repeat
 from functools import reduce
 from torch_scatter import scatter_max
-from utils.general_utils import get_expon_lr_func
+from utils.general_utils import get_expon_lr_func, knn
 from utils.system_utils import mkdir_p
 from plyfile import PlyData, PlyElement
-from simple_knn._C import distCUDA2
 from utils.graphics_utils import BasicPointCloud
 from scene.embedding import Embedding
 from scene.basic_model import BasicModel
@@ -193,7 +192,7 @@ class GaussianModel(BasicModel):
         self.spatial_lr_scale = spatial_lr_scale
         points = torch.tensor(pcd.points).float().cuda()
         if self.voxel_size <= 0:
-            init_dist = distCUDA2(init_points).float().cuda()
+            init_dist = (knn(points, 4)[:, 1:] ** 2).mean(dim=-1).float().cuda()
             median_dist, _ = torch.kthvalue(init_dist, int(init_dist.shape[0]*0.5))
             self.voxel_size = median_dist.item()
             del init_dist
@@ -206,7 +205,7 @@ class GaussianModel(BasicModel):
         logger.info(f'Initial Voxel Number: {fused_point_cloud.shape[0]}')
         logger.info(f'Voxel Size: {self.voxel_size}')
 
-        dist2 = torch.clamp_min(distCUDA2(fused_point_cloud).float().cuda(), 0.0000001)
+        dist2 = (knn(fused_point_cloud, 4)[:, 1:] ** 2).mean(dim=-1)  # [N,]
         scales = torch.log(torch.sqrt(dist2))[...,None].repeat(1, 6)
         rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
         rots[:, 0] = 1

@@ -287,7 +287,7 @@ def training_report(tb_writer, dataset_name, iteration, Ll1, loss, l1_loss, elap
 
         scene.gaussians.train()
 
-def render_set(base_model, model_path, name, iteration, views, gaussians, pipe, background):
+def render_set(base_model, model_path, name, iteration, views, gaussians, pipe, background, render_mode):
     render_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders")
     error_path = os.path.join(model_path, name, "ours_{}".format(iteration), "errors")
     gts_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gt")
@@ -303,7 +303,7 @@ def render_set(base_model, model_path, name, iteration, views, gaussians, pipe, 
         
         torch.cuda.synchronize();t_start = time.time()
         
-        render_pkg = getattr(modules, get_render_func(base_model))(view, gaussians, pipe, background, iteration, dataset.render_mode)
+        render_pkg = getattr(modules, get_render_func(base_model))(view, gaussians, pipe, background, iteration, render_mode)
         torch.cuda.synchronize();t_end = time.time()
 
         t_list.append(t_end - t_start)
@@ -343,7 +343,7 @@ def render_sets(dataset, opt, pipe, iteration, skip_train=False, skip_test=False
             os.makedirs(dataset.model_path)
 
         if not skip_train:
-            t_train_list, visible_count = render_set(dataset.base_model, dataset.model_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipe, scene.background)
+            t_train_list, visible_count = render_set(dataset.base_model, dataset.model_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipe, scene.background, dataset.render_mode)
             train_fps = 1.0 / torch.tensor(t_train_list[5:]).mean()
             logger.info(f'Train FPS: \033[1;35m{train_fps.item():.5f}\033[0m')
             if tb_writer:
@@ -352,7 +352,7 @@ def render_sets(dataset, opt, pipe, iteration, skip_train=False, skip_test=False
                 wandb.log({"train_fps":train_fps.item(), })
 
         if not skip_test:
-            t_test_list, visible_count = render_set(dataset.base_model, dataset.model_path, "test", scene.loaded_iter, scene.getTestCameras(), gaussians, pipe, scene.background)
+            t_test_list, visible_count = render_set(dataset.base_model, dataset.model_path, "test", scene.loaded_iter, scene.getTestCameras(), gaussians, pipe, scene.background, dataset.render_mode)
             test_fps = 1.0 / torch.tensor(t_test_list[5:]).mean()
             logger.info(f'Test FPS: \033[1;35m{test_fps.item():.5f}\033[0m')
             if tb_writer:
