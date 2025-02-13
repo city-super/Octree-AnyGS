@@ -4,7 +4,7 @@ model_params: {
         name: "GaussianModel",
         kwargs: {
             gs_attr: "explicit3D", 
-            color_attr: "SH0", 
+            color_attr: "SH2", 
             voxel_size: 0.001,
             render_mode: "RGB+ED",
         }
