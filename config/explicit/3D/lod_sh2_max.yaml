@@ -4,7 +4,7 @@ model_params: {
         name: "GaussianLoDModel",
         kwargs: {
             gs_attr: "explicit3D", 
-            color_attr: "SH3", 
+            color_attr: "SH2", 
             visible_threshold: 0.01,
             base_layer: 11,
             dist_ratio: 0.999,
