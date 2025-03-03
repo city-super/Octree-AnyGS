@@ -72,7 +72,7 @@ optim_params: {
     coarse_factor: 1.5,
     update_interval: 100,
     update_until: 25000,
-    overlap: True,
+    num_overlap: 5,
     densification: True,
 
     min_opacity: 0.005,

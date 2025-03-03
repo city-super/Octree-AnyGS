@@ -65,7 +65,7 @@ optim_params: {
     update_from: 1500,
     update_interval: 100,
     update_until: 20000,
-    overlap: True,
+    num_overlap: 5,
     densification: True,
 
     min_opacity: 0.005,
