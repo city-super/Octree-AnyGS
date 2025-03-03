@@ -196,28 +196,28 @@ def readCamerasFromTransforms(path, transformsfile, extension=".png"):
             image_name = Path(cam_name).stem
             image = Image.open(image_path)
 
-            if (
-                "k1" in frame
-                and "k2" in frame
-                and "p1" in frame
-                and "p2" in frame
-                and "k3" in frame
-            ):
-                mtx = np.array(
-                    [
-                        [frame["fl_x"], 0, frame["cx"]],
-                        [0, frame["fl_y"], frame["cy"]],
-                        [0, 0, 1.0],
-                    ],
-                    dtype=np.float32,
-                )
-                dist = np.array(
-                    [frame["k1"], frame["k2"], frame["p1"], frame["p2"], frame["k3"]],
-                    dtype=np.float32,
-                )
-                im_data = np.array(image.convert("RGB"))
-                arr = cv2.undistort(im_data / 255.0, mtx, dist, None, mtx)
-                image = Image.fromarray(np.array(arr * 255.0, dtype=np.byte), "RGB")
+            # if (
+            #     "k1" in frame
+            #     and "k2" in frame
+            #     and "p1" in frame
+            #     and "p2" in frame
+            #     and "k3" in frame
+            # ):
+            #     mtx = np.array(
+            #         [
+            #             [frame["fl_x"], 0, frame["cx"]],
+            #             [0, frame["fl_y"], frame["cy"]],
+            #             [0, 0, 1.0],
+            #         ],
+            #         dtype=np.float32,
+            #     )
+            #     dist = np.array(
+            #         [frame["k1"], frame["k2"], frame["p1"], frame["p2"], frame["k3"]],
+            #         dtype=np.float32,
+            #     )
+            #     im_data = np.array(image.convert("RGB"))
+            #     arr = cv2.undistort(im_data / 255.0, mtx, dist, None, mtx)
+            #     image = Image.fromarray(np.array(arr * 255.0, dtype=np.byte), "RGB")
 
             if fovx is not None:
                 fovy = focal2fov(fov2focal(fovx, image.size[0]), image.size[1])
@@ -351,7 +351,52 @@ def readNerfSyntheticInfo(path, eval, extension=".png", warmup_ply_path=None):
                            ply_path=ply_path)
     return scene_info
 
+def readCityInfo(path, eval, llffhold=8, extension=".png", warmup_ply_path=None):
+    
+    json_path = glob.glob(os.path.join(path, f"transforms.json"))[0].split('/')[-1]
+    print("Reading Training Transforms from {}".format(json_path))
+    
+    # load ply
+    ply_path = glob.glob(os.path.join(path, "*.ply"))[0]
+    if os.path.exists(ply_path):
+        try:
+            pcd = fetchPly(ply_path)
+        except:
+            raise ValueError("must have tiepoints!")
+    else:
+        las_paths = glob.glob(os.path.join(path, "LAS/*.las"))
+        las_path = las_paths[0]
+        print(f'las_path: {las_path}')
+        try:
+            pcd = read_multiple_las_files(las_paths, ply_path)
+        except:
+            raise ValueError("Load LAS failed!")
+    
+    # load camera
+    cam_infos = readCamerasFromTransforms(path, json_path, extension)
+    
+    print("Load Cameras: ", len(cam_infos))
+    train_cam_infos = []
+    test_cam_infos = []
+    
+    if not eval:
+        train_cam_infos.extend(cam_infos)
+        test_cam_infos = []
+    else:
+        train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
+        test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
+
+    nerf_normalization = getNerfppNorm(train_cam_infos)
+
+    scene_info = SceneInfo(point_cloud=pcd,
+                           train_cameras=train_cam_infos,
+                           test_cameras=test_cam_infos,
+                           nerf_normalization=nerf_normalization,
+                           ply_path=ply_path)
+    return scene_info
+
 sceneLoadTypeCallbacks = {
     "Colmap": readColmapSceneInfo,
     "Blender": readNerfSyntheticInfo,
+    "City": readCityInfo
 }

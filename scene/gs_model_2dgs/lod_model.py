@@ -437,8 +437,7 @@ class GaussianLoDModel(BasicModel):
         self._level = self._level[valid_points_mask]
         self._extra_level = self._extra_level[valid_points_mask]
 
-
-    def anchor_growing(self, iteration, grads, threshold, update_ratio, extra_ratio, extra_up, offset_mask, overlap):
+    def anchor_growing(self, iteration, grads, threshold, update_ratio, extra_ratio, extra_up, offset_mask, num_overlap):
         init_length = self.get_anchor.shape[0]
         grads[~offset_mask] = 0.0
         anchor_grads = torch.sum(grads.reshape(-1, self.n_offsets), dim=-1) / (torch.sum(offset_mask.reshape(-1, self.n_offsets), dim=-1) + 1e-6)
@@ -478,15 +477,8 @@ class GaussianLoDModel(BasicModel):
             selected_xyz = all_xyz.view([-1, 3])[candidate_mask]
             selected_grid_coords = torch.round((selected_xyz-self.init_pos)/cur_size - self.padding).int()
             selected_grid_coords_unique, inverse_indices = torch.unique(selected_grid_coords, return_inverse=True, dim=0)
-            if overlap:
-                remove_duplicates = torch.ones(selected_grid_coords_unique.shape[0], dtype=torch.bool, device="cuda")
-                candidate_anchor = selected_grid_coords_unique[remove_duplicates] * cur_size + self.init_pos + self.padding * cur_size
-                new_level = torch.ones(candidate_anchor.shape[0], dtype=torch.int, device='cuda') * cur_level
-                candidate_anchor, new_level, _, weed_mask = self.weed_out(candidate_anchor, new_level)
-                remove_duplicates_clone = remove_duplicates.clone()
-                remove_duplicates[remove_duplicates_clone] = weed_mask
-            elif selected_grid_coords_unique.shape[0] > 0 and grid_coords.shape[0] > 0:
-                remove_duplicates = self.get_remove_duplicates(grid_coords, selected_grid_coords_unique)
+            if selected_grid_coords_unique.shape[0] > 0 and grid_coords.shape[0] > 0:
+                remove_duplicates = self.get_remove_duplicates(grid_coords, selected_grid_coords_unique, num_overlap)
                 remove_duplicates = ~remove_duplicates
                 candidate_anchor = selected_grid_coords_unique[remove_duplicates]*cur_size + self.init_pos + self.padding * cur_size
                 new_level = torch.ones(candidate_anchor.shape[0], dtype=torch.int, device='cuda') * cur_level
@@ -503,15 +495,8 @@ class GaussianLoDModel(BasicModel):
             selected_grid_coords_ds = torch.round((selected_xyz_ds-self.init_pos)/ds_size-self.padding).int()
             selected_grid_coords_unique_ds, inverse_indices_ds = torch.unique(selected_grid_coords_ds, return_inverse=True, dim=0)
             if (~self.progressive or iteration > self.coarse_intervals[-1]) and cur_level < self.levels - 1:
-                if overlap:
-                    remove_duplicates_ds = torch.ones(selected_grid_coords_unique_ds.shape[0], dtype=torch.bool, device="cuda")
-                    candidate_anchor_ds = selected_grid_coords_unique_ds[remove_duplicates_ds]*ds_size+self.init_pos+self.padding*ds_size
-                    new_level_ds = torch.ones(candidate_anchor_ds.shape[0], dtype=torch.int, device='cuda') * (cur_level + 1)
-                    candidate_anchor_ds, new_level_ds, _, weed_ds_mask = self.weed_out(candidate_anchor_ds, new_level_ds)
-                    remove_duplicates_ds_clone = remove_duplicates_ds.clone()
-                    remove_duplicates_ds[remove_duplicates_ds_clone] = weed_ds_mask
-                elif selected_grid_coords_unique_ds.shape[0] > 0 and grid_coords_ds.shape[0] > 0:
-                    remove_duplicates_ds = self.get_remove_duplicates(grid_coords_ds, selected_grid_coords_unique_ds)
+                if selected_grid_coords_unique_ds.shape[0] > 0 and grid_coords_ds.shape[0] > 0:
+                    remove_duplicates_ds = self.get_remove_duplicates(grid_coords_ds, selected_grid_coords_unique_ds, num_overlap)
                     remove_duplicates_ds = ~remove_duplicates_ds
                     candidate_anchor_ds = selected_grid_coords_unique_ds[remove_duplicates_ds]*ds_size+self.init_pos+self.padding*ds_size
                     new_level_ds = torch.ones(candidate_anchor_ds.shape[0], dtype=torch.int, device='cuda') * (cur_level + 1)
@@ -600,7 +585,7 @@ class GaussianLoDModel(BasicModel):
         grads_norm = torch.norm(grads, dim=-1)
         offset_mask = (self.offset_denom > opt.update_interval * opt.success_threshold * 0.5).squeeze(dim=1)
         
-        self.anchor_growing(iteration, grads_norm, opt.densify_grad_threshold, opt.update_ratio, opt.extra_ratio, opt.extra_up, offset_mask, opt.overlap)
+        self.anchor_growing(iteration, grads_norm, opt.densify_grad_threshold, opt.update_ratio, opt.extra_ratio, opt.extra_up, offset_mask, opt.num_overlap)
         
         # update offset_denom
         self.offset_denom[offset_mask] = 0

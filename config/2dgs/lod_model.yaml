@@ -29,7 +29,7 @@ model_params: {
     data_device: "cuda",
     eval: True,
     ratio: 1,
-    render_mode: "RGB+ED",
+    render_mode: "RGB",
 }
 
 # Pipeline Parameters

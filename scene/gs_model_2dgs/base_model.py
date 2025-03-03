@@ -289,7 +289,7 @@ class GaussianModel(BasicModel):
         self._scaling = optimizable_tensors["scaling"]
         self._rotation = optimizable_tensors["rotation"]
 
-    def anchor_growing(self, grads, threshold, offset_mask, overlap):
+    def anchor_growing(self, grads, threshold, offset_mask, num_overlap):
         init_length = self.get_anchor.shape[0]*self.n_offsets
         for i in range(self.update_depth):
             # update threshold
@@ -318,13 +318,10 @@ class GaussianModel(BasicModel):
             selected_xyz = all_xyz.view([-1, 3])[candidate_mask]
             selected_grid_coords = torch.round(selected_xyz / cur_size - self.padding).int()
             selected_grid_coords_unique, inverse_indices = torch.unique(selected_grid_coords, return_inverse=True, dim=0)
-            if overlap:
-                remove_duplicates = torch.ones(selected_grid_coords_unique.shape[0], dtype=torch.bool, device="cuda")
-                candidate_anchor = selected_grid_coords_unique[remove_duplicates] * cur_size + self.padding * cur_size
-            elif selected_grid_coords_unique.shape[0] > 0 and grid_coords.shape[0] > 0:
-                remove_duplicates = self.get_remove_duplicates(grid_coords, selected_grid_coords_unique)
+            if selected_grid_coords_unique.shape[0] > 0 and grid_coords.shape[0] > 0:
+                remove_duplicates = self.get_remove_duplicates(grid_coords, selected_grid_coords_unique, num_overlap)
                 remove_duplicates = ~remove_duplicates
-                candidate_anchor = selected_grid_coords_unique[remove_duplicates]*cur_size + self.padding * cur_size
+                candidate_anchor = selected_grid_coords_unique[remove_duplicates] * cur_size + self.padding * cur_size
             else:
                 candidate_anchor = torch.zeros([0, 3], dtype=torch.float, device='cuda')
                 remove_duplicates = torch.ones([0], dtype=torch.bool, device='cuda')
@@ -377,7 +374,7 @@ class GaussianModel(BasicModel):
         grads_norm = torch.norm(grads, dim=-1)
         offset_mask = (self.offset_denom > opt.update_interval * opt.success_threshold * 0.5).squeeze(dim=1)
         
-        self.anchor_growing(grads_norm, opt.densify_grad_threshold, offset_mask, opt.overlap)
+        self.anchor_growing(grads_norm, opt.densify_grad_threshold, offset_mask, opt.num_overlap)
         
         # update offset_denom
         self.offset_denom[offset_mask] = 0

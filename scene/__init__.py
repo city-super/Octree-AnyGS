@@ -30,7 +30,7 @@ class Scene:
         self.loaded_iter = None
         self.gaussians = gaussians
         self.resolution_scales = resolution_scales
-
+    
         if args.random_background:
             self.background = torch.rand(3, dtype=torch.float32, device="cuda")
         elif args.white_background:
@@ -53,6 +53,8 @@ class Scene:
             scene_info = sceneLoadTypeCallbacks["Colmap"](args.source_path, args.images, args.eval, warmup_ply_path=ply_path)
         elif os.path.exists(os.path.join(args.source_path, "transforms_train.json")):
             scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.eval, warmup_ply_path=ply_path)
+        elif os.path.exists(os.path.join(args.source_path, "transforms.json")):
+            scene_info = sceneLoadTypeCallbacks["City"](args.source_path, args.eval, warmup_ply_path=ply_path)
         else:
             assert False, "Could not recognize scene type!"
 

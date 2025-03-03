@@ -13,7 +13,7 @@ model_params: {
         }
     },
     base_model: "2dgs",
-    source_path: "data/mipnerf360/bicycle",
+    source_path: "/cpfs01/user/renkerui/tpami24/octree-anygs/data",
     dataset_name: "mipnerf360",
     scene_name: "bicycle", 
     images: "images",
@@ -24,7 +24,7 @@ model_params: {
     data_device: "cuda",
     eval: True,
     ratio: 1,
-    render_mode: "RGB+ED",
+    render_mode: "RGB",
 }
 
 # Pipeline Parameters
@@ -55,12 +55,12 @@ optim_params: {
 
     lambda_dssim: 0.2,
     lambda_dreg: 0.0,
-    
+
     lambda_normal: 0.05,
     normal_start_iter: 7_000,
     lambda_dist: 0.0,
     dist_start_iter: 3_000,
-
+    
     start_stat: 500,
     update_from: 1500,
     update_interval: 100,

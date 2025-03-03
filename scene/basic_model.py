@@ -148,19 +148,37 @@ class BasicModel:
             
         return optimizable_tensors
 
-    def get_remove_duplicates(self, grid_coords, selected_grid_coords_unique, use_chunk = True):
+    # def get_remove_duplicates(self, grid_coords, selected_grid_coords_unique, use_chunk = True):
+
+    #     if use_chunk:
+    #         chunk_size = 4096
+    #         max_iters = grid_coords.shape[0] // chunk_size + (1 if grid_coords.shape[0] % chunk_size != 0 else 0)
+    #         remove_duplicates_list = []
+    #         for i in range(max_iters):
+    #             cur_remove_duplicates = (selected_grid_coords_unique.unsqueeze(1) == grid_coords[i*chunk_size:(i+1)*chunk_size, :]).all(-1).any(-1).view(-1)
+    #             remove_duplicates_list.append(cur_remove_duplicates)
+    #         remove_duplicates = reduce(torch.logical_or, remove_duplicates_list)
+    #     else:
+    #         remove_duplicates = (selected_grid_coords_unique.unsqueeze(1) == grid_coords).all(-1).any(-1).view(-1)
+    #     return remove_duplicates
+
+    def get_remove_duplicates(self, grid_coords, selected_grid_coords_unique, num_overlap=1, use_chunk=True):
+        counts = torch.zeros(selected_grid_coords_unique.shape[0], dtype=torch.int, device=selected_grid_coords_unique.device)
+
         if use_chunk:
             chunk_size = 4096
             max_iters = grid_coords.shape[0] // chunk_size + (1 if grid_coords.shape[0] % chunk_size != 0 else 0)
-            remove_duplicates_list = []
             for i in range(max_iters):
-                cur_remove_duplicates = (selected_grid_coords_unique.unsqueeze(1) == grid_coords[i*chunk_size:(i+1)*chunk_size, :]).all(-1).any(-1).view(-1)
-                remove_duplicates_list.append(cur_remove_duplicates)
-            remove_duplicates = reduce(torch.logical_or, remove_duplicates_list)
+                chunk = grid_coords[i * chunk_size:(i + 1) * chunk_size]
+                matches = (selected_grid_coords_unique.unsqueeze(1) == chunk.unsqueeze(0)).all(-1)
+                counts += matches.sum(dim=1)
         else:
-            remove_duplicates = (selected_grid_coords_unique.unsqueeze(1) == grid_coords).all(-1).any(-1).view(-1)
-        return remove_duplicates
+            matches = (selected_grid_coords_unique.unsqueeze(1) == grid_coords.unsqueeze(0)).all(-1)
+            counts = matches.sum(dim=1)
 
+        remove_duplicates = counts >= num_overlap
+
+        return remove_duplicates
     
     def map_to_int_level(self, pred_level, cur_level):
         if self.dist2level=='floor':

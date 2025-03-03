@@ -16,9 +16,9 @@ model_params: {
         }
     },
     base_model: "scaffoldgs",
-    source_path: "/nas/shared/pjlab_lingjun_landmarks/pjlab_lingjun_landmarks_hdd/yumulin_group/landmark_data/L1_indoor_1208/5f/eval_colmap",
+    source_path: "/nas/shared/pjlab_lingjun_landmarks/pjlab_lingjun_landmarks_hdd/yumulin_group/landmark_data/L1_indoor_1208/5f/undist",
     dataset_name: "demo",
-    scene_name: "5f", 
+    scene_name: "5f_1", 
     images: "images",
     resolution: -1,
     white_background: False,
